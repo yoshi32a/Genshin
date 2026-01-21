@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原神キャラクター管理</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        .element-pyro { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); }
+        .element-hydro { background: linear-gradient(135deg, #4fc3f7 0%, #0288d1 100%); }
+        .element-anemo { background: linear-gradient(135deg, #4dd0e1 0%, #00acc1 100%); }
+        .element-electro { background: linear-gradient(135deg, #ab47bc 0%, #7b1fa2 100%); }
+        .element-dendro { background: linear-gradient(135deg, #9ccc65 0%, #689f38 100%); }
+        .element-cryo { background: linear-gradient(135deg, #4fc3f7 0%, #0277bd 100%); }
+        .element-geo { background: linear-gradient(135deg, #ffd54f 0%, #f9a825 100%); }
+
+        .rarity-5 { background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%); }
+        .rarity-4 { background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%); }
+        .rarity-3 { background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); }
+
+        .character-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .character-card:active {
+            transform: scale(0.98);
+        }
+
+        .stat-badge {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .priority-high { border-left: 4px solid #ef4444; }
+        .priority-medium { border-left: 4px solid #f59e0b; }
+        .priority-low { border-left: 4px solid #10b981; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo } = React;
+
+        // キャラクターデータ
+        const characters = [
+            { name: "コロンビーナ", element: "水", rarity: 5, level: 70, constellation: 0, talent: "1/1/1", weapon: "流浪楽章", priority: "high" },
+            { name: "フィッシュル", element: "雷", rarity: 4, level: 60, constellation: 2, talent: "1/1/1", weapon: "", priority: "high" },
+            { name: "コクセイ", element: "雷", rarity: 4, level: 60, constellation: 0, talent: "1/1/1", weapon: "黎明の神剣 (R5)", priority: "medium" },
+            { name: "主人公", element: "草", rarity: 5, level: 50, constellation: 0, talent: "1/1/1", weapon: "祭礼の剣", priority: "high" },
+            { name: "シャンリン", element: "炎", rarity: 4, level: 50, constellation: 1, talent: "1/1/1", weapon: "", priority: "medium" },
+            { name: "ガイア", element: "氷", rarity: 4, level: 47, constellation: 0, talent: "1/1/1", weapon: "", priority: "low" },
+            { name: "ノエル", element: "岩", rarity: 4, level: 40, constellation: 0, talent: "1/1/1", weapon: "", priority: "low" },
+            { name: "リネット", element: "風", rarity: 4, level: 40, constellation: 0, talent: "1/1/1", weapon: "", priority: "low" },
+            { name: "バーバラ", element: "水", rarity: 4, level: 40, constellation: 0, talent: "1/1/1", weapon: "", priority: "low" },
+            { name: "イファ", element: "風", rarity: 4, level: 40, constellation: 3, talent: "1/1/1", weapon: "流浪楽章", priority: "low" },
+            { name: "スクロース", element: "風", rarity: 4, level: 40, constellation: 0, talent: "1/1/1", weapon: "", priority: "medium" },
+            { name: "アンバー", element: "炎", rarity: 4, level: 39, constellation: 0, talent: "1/1/1", weapon: "", priority: "low" },
+            { name: "セトス", element: "雷", rarity: 4, level: 1, constellation: 4, talent: "1/1/1", weapon: "", priority: "low" },
+            { name: "リサ", element: "雷", rarity: 4, level: 1, constellation: 0, talent: "1/1/1", weapon: "", priority: "low" },
+            { name: "コレイ", element: "草", rarity: 4, level: 1, constellation: 0, talent: "1/1/1", weapon: "", priority: "low" },
+            { name: "ディシア", element: "炎", rarity: 5, level: 1, constellation: 0, talent: "1/1/1", weapon: "", priority: "low" },
+            { name: "カーヴェ", element: "草", rarity: 4, level: 1, constellation: 0, talent: "1/1/1", weapon: "", priority: "low" },
+        ];
+
+        const elementEmoji = {
+            "炎": "🔥",
+            "水": "💧",
+            "風": "🌪️",
+            "雷": "⚡",
+            "草": "🌿",
+            "氷": "❄️",
+            "岩": "🪨"
+        };
+
+        const elementColor = {
+            "炎": "element-pyro",
+            "水": "element-hydro",
+            "風": "element-anemo",
+            "雷": "element-electro",
+            "草": "element-dendro",
+            "氷": "element-cryo",
+            "岩": "element-geo"
+        };
+
+        function CharacterCard({ character }) {
+            const priorityClass = {
+                "high": "priority-high",
+                "medium": "priority-medium",
+                "low": "priority-low"
+            }[character.priority];
+
+            const priorityLabel = {
+                "high": "最優先",
+                "medium": "育成推奨",
+                "low": "保留"
+            }[character.priority];
+
+            const priorityColor = {
+                "high": "bg-red-500",
+                "medium": "bg-amber-500",
+                "low": "bg-green-500"
+            }[character.priority];
+
+            return (
+                <div className={`character-card bg-slate-800 rounded-lg overflow-hidden shadow-lg ${priorityClass}`}>
+                    <div className={`${elementColor[character.element]} p-4 text-white`}>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                                <span className="text-3xl">{elementEmoji[character.element]}</span>
+                                <div>
+                                    <h3 className="text-xl font-bold">{character.name}</h3>
+                                    <div className="flex items-center space-x-1">
+                                        {[...Array(character.rarity)].map((_, i) => (
+                                            <span key={i} className="text-yellow-300">★</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-2xl font-bold">Lv.{character.level}</div>
+                                <div className="text-sm opacity-90">凸{character.constellation}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="p-4 space-y-3">
+                        <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-400">天賦</span>
+                            <span className="text-white font-mono">{character.talent}</span>
+                        </div>
+
+                        {character.weapon && (
+                            <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-400">武器</span>
+                                <span className="text-white text-xs">{character.weapon}</span>
+                            </div>
+                        )}
+
+                        <div className="pt-2">
+                            <span className={`${priorityColor} text-white text-xs px-3 py-1 rounded-full`}>
+                                {priorityLabel}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function StatsCard({ title, value, icon }) {
+            return (
+                <div className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-lg p-4 shadow-lg">
+                    <div className="flex items-center space-x-3">
+                        <div className="text-3xl">{icon}</div>
+                        <div>
+                            <div className="text-gray-400 text-sm">{title}</div>
+                            <div className="text-white text-2xl font-bold">{value}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function App() {
+            const [filterElement, setFilterElement] = useState("全て");
+            const [filterPriority, setFilterPriority] = useState("全て");
+            const [sortBy, setSortBy] = useState("level");
+
+            const filteredAndSortedCharacters = useMemo(() => {
+                let filtered = characters;
+
+                if (filterElement !== "全て") {
+                    filtered = filtered.filter(c => c.element === filterElement);
+                }
+
+                if (filterPriority !== "全て") {
+                    filtered = filtered.filter(c => c.priority === filterPriority);
+                }
+
+                return filtered.sort((a, b) => {
+                    if (sortBy === "level") return b.level - a.level;
+                    if (sortBy === "rarity") return b.rarity - a.rarity;
+                    if (sortBy === "priority") {
+                        const priorityOrder = { high: 0, medium: 1, low: 2 };
+                        return priorityOrder[a.priority] - priorityOrder[b.priority];
+                    }
+                    return 0;
+                });
+            }, [filterElement, filterPriority, sortBy]);
+
+            const stats = {
+                totalCharacters: characters.length,
+                avgLevel: Math.round(characters.reduce((sum, c) => sum + c.level, 0) / characters.length),
+                maxLevel: Math.max(...characters.map(c => c.level)),
+                highPriority: characters.filter(c => c.priority === "high").length
+            };
+
+            const elements = ["全て", "炎", "水", "風", "雷", "草", "氷", "岩"];
+            const priorities = ["全て", "high", "medium", "low"];
+            const priorityLabels = { "全て": "全て", "high": "最優先", "medium": "育成推奨", "low": "保留" };
+
+            return (
+                <div className="min-h-screen p-4 pb-20">
+                    <div className="max-w-4xl mx-auto space-y-6">
+                        {/* ヘッダー */}
+                        <div className="text-center py-6">
+                            <h1 className="text-4xl font-bold text-white mb-2">原神キャラクター管理</h1>
+                            <p className="text-purple-300">冒険ランク 40</p>
+                        </div>
+
+                        {/* 統計情報 */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <StatsCard title="所持キャラ" value={stats.totalCharacters} icon="👥" />
+                            <StatsCard title="平均レベル" value={stats.avgLevel} icon="📊" />
+                            <StatsCard title="最高レベル" value={stats.maxLevel} icon="🏆" />
+                            <StatsCard title="優先育成" value={stats.highPriority} icon="🎯" />
+                        </div>
+
+                        {/* フィルター */}
+                        <div className="bg-slate-800 rounded-lg p-4 shadow-lg space-y-4">
+                            <div>
+                                <label className="text-gray-400 text-sm mb-2 block">属性フィルター</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {elements.map(el => (
+                                        <button
+                                            key={el}
+                                            onClick={() => setFilterElement(el)}
+                                            className={`px-4 py-2 rounded-lg transition ${
+                                                filterElement === el
+                                                    ? 'bg-purple-600 text-white'
+                                                    : 'bg-slate-700 text-gray-300'
+                                            }`}
+                                        >
+                                            {el !== "全て" && elementEmoji[el]} {el}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-gray-400 text-sm mb-2 block">育成優先度</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {priorities.map(p => (
+                                        <button
+                                            key={p}
+                                            onClick={() => setFilterPriority(p)}
+                                            className={`px-4 py-2 rounded-lg transition ${
+                                                filterPriority === p
+                                                    ? 'bg-purple-600 text-white'
+                                                    : 'bg-slate-700 text-gray-300'
+                                            }`}
+                                        >
+                                            {priorityLabels[p]}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-gray-400 text-sm mb-2 block">並び替え</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {[
+                                        { value: "level", label: "レベル順" },
+                                        { value: "rarity", label: "レアリティ順" },
+                                        { value: "priority", label: "優先度順" }
+                                    ].map(option => (
+                                        <button
+                                            key={option.value}
+                                            onClick={() => setSortBy(option.value)}
+                                            className={`px-4 py-2 rounded-lg transition ${
+                                                sortBy === option.value
+                                                    ? 'bg-purple-600 text-white'
+                                                    : 'bg-slate-700 text-gray-300'
+                                            }`}
+                                        >
+                                            {option.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* キャラクター一覧 */}
+                        <div>
+                            <h2 className="text-2xl font-bold text-white mb-4">
+                                キャラクター一覧 ({filteredAndSortedCharacters.length}人)
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {filteredAndSortedCharacters.map((character, index) => (
+                                    <CharacterCard key={index} character={character} />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* フッター */}
+                        <div className="text-center text-gray-500 text-sm py-8">
+                            <p>最終更新: 2026年1月</p>
+                            <p className="mt-2">GitHub Pages版 - 原神キャラクター管理</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
