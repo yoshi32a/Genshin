@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>漁獲 入手チャート</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans JP", sans-serif;
+        background: linear-gradient(135deg, #0a192f 0%, #1a3a52 100%);
+        min-height: 100vh;
+        padding: 40px 20px;
+        color: #fff;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 0 30px rgba(79, 172, 254, 0.3);
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #a0c4d4;
+        margin-bottom: 50px;
+        font-size: 1.1rem;
+      }
+
+      .chart-container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .section {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        border: 1px solid rgba(79, 172, 254, 0.2);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      .section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 40px rgba(79, 172, 254, 0.3);
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        color: #4facfe;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .section-title::before {
+        content: "";
+        width: 6px;
+        height: 30px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border-radius: 3px;
+      }
+
+      .step {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid #4facfe;
+        position: relative;
+        transition: all 0.3s ease;
+      }
+
+      .step:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-left-color: #00f2fe;
+        transform: translateX(5px);
+      }
+
+      .step-number {
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: #0a192f;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+
+      .step-title {
+        font-size: 1.3rem;
+        color: #4facfe;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .step-description {
+        color: #c0d0e0;
+        line-height: 1.6;
+        margin-bottom: 10px;
+      }
+
+      .methods {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .method {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid rgba(79, 172, 254, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .method:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #4facfe;
+        transform: scale(1.02);
+      }
+
+      .method-title {
+        font-weight: 600;
+        color: #00f2fe;
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+      }
+
+      .method-detail {
+        color: #b0c0d0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      .rarity {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 5px;
+      }
+
+      .rarity-4 {
+        background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%);
+        color: white;
+      }
+
+      .materials-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .material {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .material-name {
+        color: #e0f0ff;
+        font-weight: 500;
+      }
+
+      .material-amount {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        color: #0a192f;
+      }
+
+      .arrow {
+        text-align: center;
+        font-size: 2rem;
+        color: #4facfe;
+        margin: 20px 0;
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .final-step {
+        background: linear-gradient(
+          135deg,
+          rgba(79, 172, 254, 0.1) 0%,
+          rgba(0, 242, 254, 0.1) 100%
+        );
+        border: 2px solid #4facfe;
+      }
+
+      .final-step:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(79, 172, 254, 0.2) 0%,
+          rgba(0, 242, 254, 0.2) 100%
+        );
+      }
+
+      .note {
+        background: rgba(79, 172, 254, 0.1);
+        border-left: 4px solid #4facfe;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 20px;
+        color: #d0e0f0;
+      }
+
+      .note-title {
+        font-weight: 600;
+        color: #4facfe;
+        margin-bottom: 8px;
+      }
+
+      .weapon-info {
+        background: rgba(168, 85, 247, 0.1);
+        border: 2px solid #a855f7;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+      }
+
+      .weapon-name {
+        font-size: 2rem;
+        color: #a855f7;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .weapon-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .stat {
+        color: #d0e0f0;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 5px;
+      }
+
+      .stat-label {
+        color: #a0b0c0;
+        font-size: 0.9rem;
+      }
+
+      .stat-value {
+        color: #4facfe;
+        font-weight: 600;
+        margin-left: 5px;
+      }
+
+      .fishing-spot {
+        background: rgba(79, 172, 254, 0.05);
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 10px;
+        border: 1px solid rgba(79, 172, 254, 0.2);
+      }
+
+      .fish-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .fish-item:last-child {
+        border-bottom: none;
+      }
+
+      .fish-name {
+        color: #c0d0e0;
+      }
+
+      .fish-count {
+        color: #4facfe;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎣 漁獲 入手チャート</h1>
+      <p class="subtitle">釣りシステムで入手する★4長柄武器の完全ガイド</p>
+
+      <div class="weapon-info">
+        <div class="weapon-name">
+          漁獲 <span class="rarity rarity-4">★★★★</span>
+        </div>
+        <p style="color: #b0b0c0; margin-bottom: 15px">
+          長柄武器（槍） - 釣り報酬
+        </p>
+        <div class="weapon-stats">
+          <div class="stat">
+            <span class="stat-label">基礎攻撃力（Lv.90）:</span>
+            <span class="stat-value">510</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">サブステータス:</span>
+            <span class="stat-value">元素チャージ効率+45.9%</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">武器効果:</span>
+            <span class="stat-value"
+              >元素爆発ダメージ+16%/会心率+6%（精錬5で+32%/+12%）</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <!-- ステップ1: 釣りシステムの解放 -->
+        <div class="section">
+          <h2 class="section-title">ステップ1: 釣りシステムを解放する</h2>
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-title">🔓 世界任務「爆炎樹」をクリア</div>
+            <div class="step-description">
+              釣りシステムを解放するための前提任務です。
+            </div>
+
+            <div class="methods">
+              <div class="method">
+                <div class="method-title">📍 任務受注場所</div>
+                <div class="method-detail">
+                  <strong>場所:</strong> モンド城<br />
+                  <strong>NPC:</strong> キャサリン（冒険者協会）<br />
+                  <strong>条件:</strong> 冒険ランク30以上
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">📋 任務内容</div>
+                <div class="method-detail">
+                  <strong>目的:</strong> 各地の釣り人と話す<br />
+                  <strong>報酬:</strong> 釣りシステム解放<br />
+                  <strong>所要時間:</strong> 約30分～1時間
+                </div>
+              </div>
+            </div>
+
+            <div class="note">
+              <div class="note-title">💡 重要</div>
+              この世界任務をクリアしないと釣りができません。まずはこの任務を完了させましょう！
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow">↓</div>
+
+        <!-- ステップ2: 魚の収集 -->
+        <div class="section">
+          <h2 class="section-title">ステップ2: 必要な魚を釣る</h2>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-title">🐟 必要な魚一覧</div>
+            <div class="step-description">
+              「漁獲」を入手するために必要な魚の種類と数：
+            </div>
+
+            <div class="materials-list">
+              <div class="material">
+                <span class="material-name">🐟 観賞魚：苦しみの炎パラダイスフィッシュ</span>
+                <span class="material-amount">× 6</span>
+              </div>
+              <div class="material">
+                <span class="material-name">🐟 観賞魚：ルナのコーラスフィッシュ</span>
+                <span class="material-amount">× 20</span>
+              </div>
+              <div class="material">
+                <span class="material-name">🐟 観賞魚：雷霆の金魚</span>
+                <span class="material-amount">× 20</span>
+              </div>
+              <div class="material">
+                <span class="material-name">🐟 観賞魚：真塩の赤魚</span>
+                <span class="material-amount">× 20</span>
+              </div>
+              <div class="material">
+                <span class="material-name">🐟 観賞魚：流月の金魚</span>
+                <span class="material-amount">× 20</span>
+              </div>
+              <div class="material">
+                <span class="material-name">🐟 観賞魚：茜雲の金魚</span>
+                <span class="material-amount">× 20</span>
+              </div>
+            </div>
+
+            <div class="note">
+              <div class="note-title">⏱️ 収集の目安</div>
+              • 魚のリポップ時間：実時間72時間（3日）<br />
+              • 推定所要日数：約1～2週間（毎日釣る場合）<br />
+              • 観賞魚はレアなので、見つけたら優先的に釣りましょう
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">2-1</div>
+            <div class="step-title">🗺️ 主要な釣りスポット</div>
+            <div class="step-description">
+              各地域の釣りスポットで効率的に魚を集めましょう：
+            </div>
+
+            <div class="methods">
+              <div class="method">
+                <div class="method-title">🌸 モンド地域</div>
+                <div class="method-detail">
+                  <strong>スポット数:</strong> 10箇所以上<br />
+                  <strong>代表的な場所:</strong><br />
+                  • モンド城の橋付近<br />
+                  • ワイナリー周辺<br />
+                  • ダダウパの谷の湖
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">⛰️ 璃月地域</div>
+                <div class="method-detail">
+                  <strong>スポット数:</strong> 15箇所以上<br />
+                  <strong>代表的な場所:</strong><br />
+                  • 璃月港の桟橋<br />
+                  • 望舒旅館周辺<br />
+                  • 南天門付近の池
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">⚡ イナズマ地域</div>
+                <div class="method-detail">
+                  <strong>スポット数:</strong> 15箇所以上<br />
+                  <strong>代表的な場所:</strong><br />
+                  • 離島の海岸<br />
+                  • 鳴神大社周辺<br />
+                  • ヤシオリ島の池
+                </div>
+              </div>
+            </div>
+
+            <div class="note">
+              <div class="note-title">🎣 釣りのコツ</div>
+              • 夜間（18:00～6:00）は一部の魚が出やすくなります<br />
+              • 餌は「偽餌・赤羽」「偽餌・緋櫻毬」などを使い分けましょう<br />
+              • 張力ゲージを維持しつつ、魚を疲れさせるのがコツです
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow">↓</div>
+
+        <!-- ステップ3: 釣り協会で交換 -->
+        <div class="section">
+          <h2 class="section-title">ステップ3: 釣り協会で交換する</h2>
+          <div class="step final-step">
+            <div class="step-number">3</div>
+            <div class="step-title">✨ 「漁獲」を入手</div>
+            <div class="step-description">
+              必要な魚を全て集めたら、釣り協会で「漁獲」と交換しましょう！
+            </div>
+
+            <div class="methods">
+              <div class="method">
+                <div class="method-title">📍 モンド - ナタリア</div>
+                <div class="method-detail">
+                  <strong>場所:</strong> モンド城の城壁外（釣りスポット付近）<br />
+                  <strong>営業時間:</strong> 24時間<br />
+                  <strong>アイコン:</strong> 釣り協会マーク
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">📍 璃月 - 嘉瑋</div>
+                <div class="method-detail">
+                  <strong>場所:</strong> 璃月港の桟橋付近<br />
+                  <strong>営業時間:</strong> 24時間<br />
+                  <strong>アイコン:</strong> 釣り協会マーク
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">📍 イナズマ - 九条孝行</div>
+                <div class="method-detail">
+                  <strong>場所:</strong> 離島（稲妻城対岸）<br />
+                  <strong>営業時間:</strong> 24時間<br />
+                  <strong>アイコン:</strong> 釣り協会マーク
+                </div>
+              </div>
+            </div>
+
+            <div class="note">
+              <div class="note-title">🎉 完成！</div>
+              釣り協会のNPCと話し、「観賞魚を交換」→「漁獲」を選択すれば入手完了！<br />
+              交換は即時なので、魚さえ集めればすぐに入手できます。
+            </div>
+          </div>
+        </div>
+
+        <!-- 精錬について -->
+        <div class="section">
+          <h2 class="section-title">精錬について</h2>
+          <div class="step">
+            <div class="step-title">⭐ 精錬ランク5を目指そう</div>
+            <div class="step-description">
+              「漁獲」は精錬素材として追加で入手可能です。精錬ランク5にすることで武器効果が大幅に強化されます。
+            </div>
+
+            <div class="materials-list" style="margin-top: 20px">
+              <div class="material">
+                <span class="material-name">精錬ランク2にするため</span>
+                <span class="material-amount">漁獲 × 1</span>
+              </div>
+              <div class="material">
+                <span class="material-name">精錬ランク3にするため</span>
+                <span class="material-amount">漁獲 × 1（計2本）</span>
+              </div>
+              <div class="material">
+                <span class="material-name">精錬ランク4にするため</span>
+                <span class="material-amount">漁獲 × 1（計3本）</span>
+              </div>
+              <div class="material">
+                <span class="material-name">精錬ランク5にするため</span>
+                <span class="material-amount">漁獲 × 1（計4本）</span>
+              </div>
+            </div>
+
+            <div class="note">
+              <div class="note-title">📊 精錬効果の変化</div>
+              <strong>精錬ランク1:</strong> 元素爆発ダメージ+16% / 会心率+6%<br />
+              <strong>精錬ランク5:</strong> 元素爆発ダメージ+32% / 会心率+12%<br />
+              <br />
+              <strong>推奨:</strong> 雷電将軍など元素爆発メインのキャラに装備する場合は、精錬ランク5を強く推奨します。
+            </div>
+          </div>
+        </div>
+
+        <!-- おすすめキャラ -->
+        <div class="section">
+          <h2 class="section-title">おすすめ装備キャラクター</h2>
+          <div class="step">
+            <div class="step-title">👥 漁獲が特におすすめのキャラ</div>
+
+            <div class="methods">
+              <div class="method">
+                <div class="method-title">⚡ 雷電将軍（最適）</div>
+                <div class="method-detail">
+                  元素チャージ効率と元素爆発ダメージ強化が完璧にマッチ。無課金最強武器として有名
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">🔥 香菱</div>
+                <div class="method-detail">
+                  元素爆発依存のキャラなので、元素チャージ効率と爆発ダメージUPが非常に有用
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">💧 ロサリア</div>
+                <div class="method-detail">
+                  元素爆発の回転率を上げつつダメージも強化できる。会心率バフとの相性も良い
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">🌿 ヨォーヨ</div>
+                <div class="method-detail">
+                  元素爆発を頻繁に使うヒーラーなので、チャージ効率が活きる
+                </div>
+              </div>
+            </div>
+
+            <div class="note">
+              <div class="note-title">💎 特に雷電将軍には最高の武器</div>
+              雷電将軍の場合、★5武器である「草薙の稲光」に次ぐ性能を誇ります。無課金・微課金プレイヤーには必須級の武器です。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="note"
+        style="
+          margin-top: 30px;
+          background: rgba(79, 172, 254, 0.1);
+          border-left-color: #4facfe;
+        "
+      >
+        <div class="note-title" style="color: #4facfe">⚠️ 重要な注意点</div>
+        • 魚のリポップには3日かかるため、計画的に釣りを進めましょう<br />
+        • 「漁獲」は釣り協会でしか入手できない限定武器です<br />
+        • 特に雷電将軍を使っている、または今後引く予定がある場合は必ず入手してください<br />
+        • 精錬ランク5を目指す場合、合計で上記の魚を5倍の数集める必要があります<br />
+        • 釣りは毎日コツコツ続けるのがコツです。焦らず楽しみましょう！
+      </div>
+    </div>
+  </body>
+</html>
