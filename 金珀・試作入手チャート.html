@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>金珀・試作 入手チャート</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans JP", sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        min-height: 100vh;
+        padding: 40px 20px;
+        color: #fff;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 0 30px rgba(246, 211, 101, 0.3);
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #a0a0c0;
+        margin-bottom: 50px;
+        font-size: 1.1rem;
+      }
+
+      .chart-container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .section {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      .section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 40px rgba(246, 211, 101, 0.2);
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        color: #fda085;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .section-title::before {
+        content: "";
+        width: 6px;
+        height: 30px;
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        border-radius: 3px;
+      }
+
+      .step {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid #f6d365;
+        position: relative;
+        transition: all 0.3s ease;
+      }
+
+      .step:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-left-color: #fda085;
+        transform: translateX(5px);
+      }
+
+      .step-number {
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        color: #1a1a2e;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+
+      .step-title {
+        font-size: 1.3rem;
+        color: #f6d365;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .step-description {
+        color: #c0c0d0;
+        line-height: 1.6;
+        margin-bottom: 10px;
+      }
+
+      .methods {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .method {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid rgba(246, 211, 101, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .method:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #f6d365;
+        transform: scale(1.02);
+      }
+
+      .method-title {
+        font-weight: 600;
+        color: #fda085;
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+      }
+
+      .method-detail {
+        color: #b0b0c0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      .rarity {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 5px;
+      }
+
+      .rarity-4 {
+        background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%);
+        color: white;
+      }
+
+      .materials-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .material {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .material-name {
+        color: #e0e0f0;
+        font-weight: 500;
+      }
+
+      .material-amount {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        color: white;
+      }
+
+      .arrow {
+        text-align: center;
+        font-size: 2rem;
+        color: #f6d365;
+        margin: 20px 0;
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .final-step {
+        background: linear-gradient(
+          135deg,
+          rgba(246, 211, 101, 0.1) 0%,
+          rgba(253, 160, 133, 0.1) 100%
+        );
+        border: 2px solid #f6d365;
+      }
+
+      .final-step:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(246, 211, 101, 0.2) 0%,
+          rgba(253, 160, 133, 0.2) 100%
+        );
+      }
+
+      .note {
+        background: rgba(102, 126, 234, 0.1);
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 20px;
+        color: #d0d0e0;
+      }
+
+      .note-title {
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 8px;
+      }
+
+      .weapon-info {
+        background: rgba(168, 85, 247, 0.1);
+        border: 2px solid #a855f7;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+      }
+
+      .weapon-name {
+        font-size: 2rem;
+        color: #a855f7;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .weapon-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .stat {
+        color: #d0d0e0;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 5px;
+      }
+
+      .stat-label {
+        color: #a0a0c0;
+        font-size: 0.9rem;
+      }
+
+      .stat-value {
+        color: #f6d365;
+        font-weight: 600;
+        margin-left: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>⚔️ 金珀・試作 入手チャート</h1>
+      <p class="subtitle">北陸原型の入手から鍛造までの完全ガイド</p>
+
+      <div class="weapon-info">
+        <div class="weapon-name">
+          金珀・試作 <span class="rarity rarity-4">★★★★</span>
+        </div>
+        <p style="color: #b0b0c0; margin-bottom: 15px">
+          法器（触媒） - 鍛造武器
+        </p>
+        <div class="weapon-stats">
+          <div class="stat">
+            <span class="stat-label">基礎攻撃力（Lv.90）:</span>
+            <span class="stat-value">510</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">サブステータス:</span>
+            <span class="stat-value">HP+41.3%</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">武器効果:</span>
+            <span class="stat-value"
+              >元素スキル命中でHP回復+元素エネルギー回復</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <!-- ステップ1: 北陸原型の入手 -->
+        <div class="section">
+          <h2 class="section-title">ステップ1: 北陸原型を入手する</h2>
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-title">🎯 北陸原型の入手方法</div>
+            <div class="step-description">
+              法器を鍛造するために必要な原型アイテムです。以下の方法で入手できます：
+            </div>
+
+            <div class="methods">
+              <div class="method">
+                <div class="method-title">📍 週ボス討伐報酬</div>
+                <div class="method-detail">
+                  <strong>入手確率:</strong> 約12%（週3回まで）<br />
+                  <strong>対象:</strong> 全ての週ボス<br />
+                  <strong>推奨:</strong> 最も安定した入手方法
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">🏪 スターライト交換</div>
+                <div class="method-detail">
+                  <strong>価格:</strong> スターライト×225<br />
+                  <strong>制限:</strong> 月1個まで<br />
+                  <strong>場所:</strong> パイモンの店 > 交換所
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">📦 宝箱・探索</div>
+                <div class="method-detail">
+                  <strong>ドラゴンスパイン:</strong> 忘却の峡谷の秘宝<br />
+                  <strong>イナズマ:</strong> 雷電将軍の伝説任務報酬<br />
+                  <strong>スメール:</strong> 一部の世界任務報酬
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">🎊 イベント報酬</div>
+                <div class="method-detail">
+                  <strong>頻度:</strong> 不定期<br />
+                  <strong>内容:</strong>
+                  大型イベントで配布されることがある<br />
+                  <strong>推奨:</strong> イベントは必ず参加しよう
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">🌲 ソウマウベンの恩恵</div>
+                <div class="method-detail">
+                  <strong>場所:</strong> スメール<br />
+                  <strong>条件:</strong> 夢の木のレベルアップ報酬<br />
+                  <strong>入手可能数:</strong> 複数個入手可能
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">🎁 神櫻の恩恵</div>
+                <div class="method-detail">
+                  <strong>場所:</strong> イナズマ<br />
+                  <strong>条件:</strong> 神櫻のレベルアップ報酬<br />
+                  <strong>入手可能数:</strong> 複数個入手可能
+                </div>
+              </div>
+            </div>
+
+            <div class="note">
+              <div class="note-title">💡 おすすめの入手方法</div>
+              週ボスを毎週3回討伐 + スターライトが225個あれば交換するのが最速。
+              探索が好きなら各地域の特別な宝箱や樹木システムの報酬も確認しよう！
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow">↓</div>
+
+        <!-- ステップ2: 素材収集 -->
+        <div class="section">
+          <h2 class="section-title">ステップ2: 鍛造素材を集める</h2>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-title">📋 必要素材一覧</div>
+            <div class="step-description">以下の素材を全て集めましょう：</div>
+
+            <div class="materials-list">
+              <div class="material">
+                <span class="material-name">🔷 北陸原型</span>
+                <span class="material-amount">× 1</span>
+              </div>
+              <div class="material">
+                <span class="material-name">⚙️ 夜泊石の塊</span>
+                <span class="material-amount">× 50</span>
+              </div>
+              <div class="material">
+                <span class="material-name">🎭 絵スクロール</span>
+                <span class="material-amount">× 50</span>
+              </div>
+              <div class="material">
+                <span class="material-name">💰 モラ</span>
+                <span class="material-amount">× 500</span>
+              </div>
+            </div>
+
+            <div class="methods" style="margin-top: 25px">
+              <div class="method">
+                <div class="method-title">⚙️ 夜泊石の塊</div>
+                <div class="method-detail">
+                  <strong>入手方法:</strong><br />
+                  • 璃月地域の鉱脈から採掘<br />
+                  • 鍛冶屋で夜泊石を加工（3個→1個）<br />
+                  • 毎日の委託任務報酬<br />
+                  <strong>場所:</strong> 璃月全域（特に層岩巨淵）
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">🎭 絵スクロール</div>
+                <div class="method-detail">
+                  <strong>ドロップ:</strong> ヒルチャール（璃月）<br />
+                  • 絵スクロール（Lv.1-40+）<br />
+                  • 封魔絵スクロール（Lv.40+）<br />
+                  • 呪術絵スクロール（Lv.60+）<br />
+                  <strong>推奨:</strong> ヒルチャール密集地で効率的に周回
+                </div>
+              </div>
+            </div>
+
+            <div class="note">
+              <div class="note-title">⏱️ 素材収集の目安時間</div>
+              • 夜泊石の塊：鉱脈周回で約30分～1時間<br />
+              • 絵スクロール：ヒルチャール狩りで約30分～1時間<br />
+              • モラ：少量なので問題なし
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow">↓</div>
+
+        <!-- ステップ3: 鍛造 -->
+        <div class="section">
+          <h2 class="section-title">ステップ3: 鍛造する</h2>
+          <div class="step final-step">
+            <div class="step-number">3</div>
+            <div class="step-title">🔨 鍛冶屋で鍛造</div>
+            <div class="step-description">
+              全ての素材が揃ったら、鍛冶屋で鍛造しましょう！
+            </div>
+
+            <div class="methods">
+              <div class="method">
+                <div class="method-title">📍 モンド - ワグナー</div>
+                <div class="method-detail">
+                  <strong>場所:</strong> モンド城内の鍛冶屋<br />
+                  <strong>営業時間:</strong> 24時間
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">📍 璃月 - 老章</div>
+                <div class="method-detail">
+                  <strong>場所:</strong> 璃月港の鍛冶屋<br />
+                  <strong>営業時間:</strong> 24時間
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">📍 イナズマ - 葉西蔵</div>
+                <div class="method-detail">
+                  <strong>場所:</strong> 稲妻城の鍛冶屋<br />
+                  <strong>営業時間:</strong> 24時間
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">📍 スメール - 細赫</div>
+                <div class="method-detail">
+                  <strong>場所:</strong> スメールシティの鍛冶屋<br />
+                  <strong>営業時間:</strong> 24時間
+                </div>
+              </div>
+            </div>
+
+            <div class="note">
+              <div class="note-title">🎉 完成！</div>
+              鍛冶屋で「鍛造」→「法器」→「金珀・試作」を選択して鍛造完了！<br />
+              鍛造に要する時間は即時なので、素材さえあればすぐに入手できます。
+            </div>
+          </div>
+        </div>
+
+        <!-- おすすめキャラ -->
+        <div class="section">
+          <h2 class="section-title">おすすめ装備キャラクター</h2>
+          <div class="step">
+            <div class="step-title">👥 金珀・試作が特におすすめのキャラ</div>
+
+            <div class="methods">
+              <div class="method">
+                <div class="method-title">バーバラ</div>
+                <div class="method-detail">
+                  ヒーラー運用に最適。HP%のサブステと武器効果の回復が非常に相性良し
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">ココミ</div>
+                <div class="method-detail">
+                  HP依存のキャラなので、HP%サブステが活きる。元素エネルギー回復も便利
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">ネイユー（無凸・低凸）</div>
+                <div class="method-detail">
+                  HP依存アタッカー。回復＋HP%で安定性と火力を両立できる
+                </div>
+              </div>
+
+              <div class="method">
+                <div class="method-title">ヤエミコ（サポート運用）</div>
+                <div class="method-detail">
+                  元素スキルを頻繁に使うので、エネルギー回復効果が便利
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="note"
+        style="
+          margin-top: 30px;
+          background: rgba(253, 160, 133, 0.1);
+          border-left-color: #fda085;
+        "
+      >
+        <div class="note-title" style="color: #fda085">⚠️ 重要な注意点</div>
+        • 北陸原型は貴重なアイテムなので、鍛造前によく考えましょう<br />
+        • ★5法器を持っている場合、そちらを優先した方が良い場合もあります<br />
+        •
+        ガチャで「祭礼の断片」や「流浪楽章」を持っている場合、そちらの方が強力な場合もあります<br />
+        • 鍛造武器は精錬素材として同じ武器を使うので、複数作成も視野に入れよう
+      </div>
+    </div>
+  </body>
+</html>
