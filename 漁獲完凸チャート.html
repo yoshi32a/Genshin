@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>漁獲 完凸チャート</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans JP", sans-serif;
+        background: linear-gradient(135deg, #0a192f 0%, #1a3a52 100%);
+        min-height: 100vh;
+        padding: 40px 20px;
+        color: #fff;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 0 30px rgba(79, 172, 254, 0.3);
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #a0c4d4;
+        margin-bottom: 50px;
+        font-size: 1.1rem;
+      }
+
+      .chart-container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .section {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        border: 1px solid rgba(79, 172, 254, 0.2);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      .section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 40px rgba(79, 172, 254, 0.3);
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        color: #4facfe;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .section-title::before {
+        content: "";
+        width: 6px;
+        height: 30px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border-radius: 3px;
+      }
+
+      .step {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid #4facfe;
+        position: relative;
+        transition: all 0.3s ease;
+      }
+
+      .step:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-left-color: #00f2fe;
+        transform: translateX(5px);
+      }
+
+      .step-number {
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: #0a192f;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+
+      .step-title {
+        font-size: 1.3rem;
+        color: #4facfe;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .step-description {
+        color: #c0d0e0;
+        line-height: 1.6;
+        margin-bottom: 10px;
+      }
+
+      .materials-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .material {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .material-name {
+        color: #e0f0ff;
+        font-weight: 500;
+      }
+
+      .material-amount {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        color: #0a192f;
+      }
+
+      .arrow {
+        text-align: center;
+        font-size: 2rem;
+        color: #4facfe;
+        margin: 20px 0;
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .note {
+        background: rgba(79, 172, 254, 0.1);
+        border-left: 4px solid #4facfe;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 20px;
+        color: #d0e0f0;
+      }
+
+      .note-title {
+        font-weight: 600;
+        color: #4facfe;
+        margin-bottom: 8px;
+      }
+
+      .weapon-info {
+        background: rgba(168, 85, 247, 0.1);
+        border: 2px solid #a855f7;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+      }
+
+      .weapon-name {
+        font-size: 2rem;
+        color: #a855f7;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .weapon-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .stat {
+        color: #d0e0f0;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 5px;
+      }
+
+      .stat-label {
+        color: #a0b0c0;
+        font-size: 0.9rem;
+      }
+
+      .stat-value {
+        color: #4facfe;
+        font-weight: 600;
+        margin-left: 5px;
+      }
+
+      .rarity {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 5px;
+      }
+
+      .rarity-4 {
+        background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%);
+        color: white;
+      }
+
+      .map-container {
+        margin-top: 20px;
+        border-radius: 15px;
+        overflow: hidden;
+        border: 2px solid rgba(79, 172, 254, 0.3);
+      }
+
+      .map-container img {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: transform 0.3s ease;
+      }
+
+      .map-container:hover img {
+        transform: scale(1.02);
+      }
+
+      .map-title {
+        background: linear-gradient(135deg, rgba(79, 172, 254, 0.2) 0%, rgba(0, 242, 254, 0.2) 100%);
+        padding: 15px;
+        text-align: center;
+        font-weight: 600;
+        color: #4facfe;
+        font-size: 1.1rem;
+      }
+
+      .fish-category {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        border: 1px solid rgba(79, 172, 254, 0.15);
+      }
+
+      .fish-category-title {
+        font-size: 1.4rem;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .fish-category-title.purple {
+        color: #ab47bc;
+      }
+
+      .fish-category-title.gold {
+        color: #ffd700;
+      }
+
+      .fish-category-title.orange {
+        color: #ff9800;
+      }
+
+      .fish-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .fish-info-item {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px;
+        border-radius: 8px;
+      }
+
+      .fish-info-label {
+        color: #a0b0c0;
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+      }
+
+      .fish-info-value {
+        color: #e0f0ff;
+        font-weight: 500;
+      }
+
+      .progress-tracker {
+        background: rgba(79, 172, 254, 0.1);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+      }
+
+      .progress-title {
+        font-size: 1.5rem;
+        color: #4facfe;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .progress-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+      }
+
+      .progress-item {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid rgba(79, 172, 254, 0.2);
+      }
+
+      .progress-item-name {
+        color: #b0c0d0;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+      }
+
+      .progress-item-count {
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .final-step {
+        background: linear-gradient(
+          135deg,
+          rgba(79, 172, 254, 0.1) 0%,
+          rgba(0, 242, 254, 0.1) 100%
+        );
+        border: 2px solid #4facfe;
+      }
+
+      .final-step:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(79, 172, 254, 0.2) 0%,
+          rgba(0, 242, 254, 0.2) 100%
+        );
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎣 漁獲 完凸チャート</h1>
+      <p class="subtitle">精錬ランク5を目指すための完全釣りガイド ～ マップ付き ～</p>
+
+      <div class="weapon-info">
+        <div class="weapon-name">
+          漁獲 <span class="rarity rarity-4">★★★★</span> 【精錬5】
+        </div>
+        <p style="color: #b0b0c0; margin-bottom: 15px">
+          長柄武器（槍） - 釣り報酬
+        </p>
+        <div class="weapon-stats">
+          <div class="stat">
+            <span class="stat-label">基礎攻撃力（Lv.90）:</span>
+            <span class="stat-value">510</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">サブステータス:</span>
+            <span class="stat-value">元素チャージ効率+45.9%</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">武器効果（精錬5）:</span>
+            <span class="stat-value">元素爆発ダメージ+32% / 会心率+12%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 必要な魚の総数 -->
+      <div class="progress-tracker">
+        <div class="progress-title">📊 完凸までに必要な魚の総数</div>
+        <div class="progress-grid">
+          <div class="progress-item">
+            <div class="progress-item-name">⚡ 雷鳴仙</div>
+            <div class="progress-item-count">× 18</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-item-name">🐟 金赤リュウノコ</div>
+            <div class="progress-item-count">× 20</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-item-name">🐟 錆色リュウノコ</div>
+            <div class="progress-item-count">× 20</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-item-name">🐡 鉄砲フグ</div>
+            <div class="progress-item-count">× 40</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-item-name">🐡 苦鉄砲フグ</div>
+            <div class="progress-item-count">× 40</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <!-- 内訳 -->
+        <div class="section">
+          <h2 class="section-title">必要数の内訳</h2>
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-title">🗡️ 漁獲本体の交換</div>
+            <div class="step-description">
+              稲妻の釣り協会（鯨井椛）で交換
+            </div>
+            <div class="materials-list">
+              <div class="material">
+                <span class="material-name">⚡ 雷鳴仙</span>
+                <span class="material-amount">× 6</span>
+              </div>
+              <div class="material">
+                <span class="material-name">🐟 金赤リュウノコ</span>
+                <span class="material-amount">× 20</span>
+              </div>
+              <div class="material">
+                <span class="material-name">🐟 錆色リュウノコ</span>
+                <span class="material-amount">× 20</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-title">⭐ 赤穂の枡 × 4個（精錬素材）</div>
+            <div class="step-description">
+              精錬ランク2→5にするために必要。こちらも稲妻の釣り協会で交換。
+            </div>
+            <div class="materials-list">
+              <div class="material">
+                <span class="material-name">⚡ 雷鳴仙（3匹 × 4個分）</span>
+                <span class="material-amount">× 12</span>
+              </div>
+              <div class="material">
+                <span class="material-name">🐡 鉄砲フグ（10匹 × 4個分）</span>
+                <span class="material-amount">× 40</span>
+              </div>
+              <div class="material">
+                <span class="material-name">🐡 苦鉄砲フグ（10匹 × 4個分）</span>
+                <span class="material-amount">× 40</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="note">
+            <div class="note-title">⏱️ 所要日数の目安</div>
+            • 魚のリポップ時間：実時間72時間（3日）<br />
+            • 推定所要日数：約2～3週間（毎日全スポット巡回の場合）<br />
+            • 他プレイヤーのワールドでも釣りが可能なので、マルチプレイ活用で時短可能！
+          </div>
+        </div>
+
+        <div class="arrow">↓</div>
+
+        <!-- 雷鳴仙 -->
+        <div class="section">
+          <h2 class="section-title">雷鳴仙の釣り場（× 18匹）</h2>
+          
+          <div class="fish-category">
+            <div class="fish-category-title purple">⚡ 雷鳴仙（らいめいせん）</div>
+            
+            <div class="fish-info">
+              <div class="fish-info-item">
+                <div class="fish-info-label">使用する餌</div>
+                <div class="fish-info-value">🪱 ワームの疑似餌</div>
+              </div>
+              <div class="fish-info-item">
+                <div class="fish-info-label">出現時間</div>
+                <div class="fish-info-value">🌙 夜間のみ（18:00～6:00）</div>
+              </div>
+              <div class="fish-info-item">
+                <div class="fish-info-label">出現地域</div>
+                <div class="fish-info-value">稲妻のみ</div>
+              </div>
+              <div class="fish-info-item">
+                <div class="fish-info-label">主な釣り場</div>
+                <div class="fish-info-value">たたら砂東の沈没船付近</div>
+              </div>
+            </div>
+
+            <div class="map-container">
+              <div class="map-title">🗺️ 雷鳴仙 釣りスポットマップ</div>
+              <img src="images/raimei_angelfish_map.png" alt="雷鳴仙の釣りスポットマップ" />
+            </div>
+
+            <div class="note">
+              <div class="note-title">💡 雷鳴仙を効率よく集めるコツ</div>
+              • <strong>夜間限定</strong>なので、ゲーム内時間を18:00に設定してから釣り場へ向かう<br />
+              • 九条陣屋の南東、たたら砂東の沈没船エリアが最も出現率が高い<br />
+              • 1回の釣りで2～4匹程度釣れることが多い<br />
+              • 他のプレイヤーのワールドでもマルチで釣り可能！
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow">↓</div>
+
+        <!-- リュウノコ -->
+        <div class="section">
+          <h2 class="section-title">リュウノコの釣り場（各 × 20匹）</h2>
+          
+          <div class="fish-category">
+            <div class="fish-category-title gold">🐟 金赤リュウノコ & 錆色リュウノコ</div>
+            
+            <div class="fish-info">
+              <div class="fish-info-item">
+                <div class="fish-info-label">使用する餌</div>
+                <div class="fish-info-value">🪰 ハエの疑似餌</div>
+              </div>
+              <div class="fish-info-item">
+                <div class="fish-info-label">出現時間</div>
+                <div class="fish-info-value">常時</div>
+              </div>
+              <div class="fish-info-item">
+                <div class="fish-info-label">出現地域</div>
+                <div class="fish-info-value">モンド・璃月・稲妻</div>
+              </div>
+            </div>
+
+            <div class="step-description" style="margin-bottom: 15px;">
+              <strong>🌍 主な釣り場所：</strong><br />
+              <strong>モンド:</strong> シードル湖、望風山地、風龍廃墟、アカツキワイナリー<br />
+              <strong>璃月:</strong> 軽策荘、望舒旅館、漉華の池、璃月港東<br />
+              <strong>稲妻:</strong> 離島、越石村、名椎の浜、九条陣屋
+            </div>
+
+            <div class="map-container">
+              <div class="map-title">🗺️ リュウノコ 釣りスポットマップ</div>
+              <img src="images/koi_fishing_map.png" alt="リュウノコの釣りスポットマップ" />
+            </div>
+
+            <div class="note">
+              <div class="note-title">💡 リュウノコを効率よく集めるコツ</div>
+              • 金赤と錆色は同じ場所で釣れるので、両方同時に集められる<br />
+              • 璃月エリアの釣り場が特に出現率が高い<br />
+              • 軽策荘と望舒旅館はテレポートもしやすく周回におすすめ<br />
+              • 比較的集めやすいので、雷鳴仙より先に揃うことが多い
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow">↓</div>
+
+        <!-- 鉄砲フグ -->
+        <div class="section">
+          <h2 class="section-title">鉄砲フグの釣り場（各 × 40匹）</h2>
+          
+          <div class="fish-category">
+            <div class="fish-category-title orange">🐡 鉄砲フグ & 苦鉄砲フグ</div>
+            
+            <div class="fish-info">
+              <div class="fish-info-item">
+                <div class="fish-info-label">使用する餌</div>
+                <div class="fish-info-value">🪰 ハエの疑似餌</div>
+              </div>
+              <div class="fish-info-item">
+                <div class="fish-info-label">出現時間</div>
+                <div class="fish-info-value">常時</div>
+              </div>
+              <div class="fish-info-item">
+                <div class="fish-info-label">出現地域</div>
+                <div class="fish-info-value">モンド・璃月・稲妻</div>
+              </div>
+            </div>
+
+            <div class="step-description" style="margin-bottom: 15px;">
+              <strong>🌍 主な釣り場所：</strong><br />
+              <strong>モンド:</strong> シードル湖、望風山地、アカツキワイナリー、モンド城南の池<br />
+              <strong>璃月:</strong> 望舒旅館、璃月港東、軽策荘、漉華の池、層岩巨淵<br />
+              <strong>稲妻:</strong> 離島、九条陣屋、名椎の浜
+            </div>
+
+            <div class="map-container">
+              <div class="map-title">🗺️ 鉄砲フグ 釣りスポットマップ</div>
+              <img src="images/pufferfish_map.png" alt="鉄砲フグの釣りスポットマップ" />
+            </div>
+
+            <div class="note">
+              <div class="note-title">💡 鉄砲フグを効率よく集めるコツ</div>
+              • 鉄砲フグと苦鉄砲フグは同じ場所で釣れることが多い<br />
+              • リュウノコと同じ釣り場で出現するので、一緒に周回すると効率的<br />
+              • 各40匹ずつ必要なので、最も数が必要な魚<br />
+              • 層岩巨淵の地下鉱区も苦鉄砲フグの出現スポット
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow">↓</div>
+
+        <!-- 餌の準備 -->
+        <div class="section">
+          <h2 class="section-title">釣り餌の準備</h2>
+          <div class="step">
+            <div class="step-number">餌</div>
+            <div class="step-title">🎣 必要な釣り餌</div>
+            <div class="step-description">
+              漁獲完凸には2種類の餌が必要です。合成台で作成できます。
+            </div>
+
+            <div class="fish-info" style="margin-top: 15px;">
+              <div class="fish-info-item">
+                <div class="fish-info-label">🪱 ワームの疑似餌（雷鳴仙用）</div>
+                <div class="fish-info-value">
+                  素材: 樹王の聖体菇×1 + 鳥肉×1<br />
+                  レシピ: モンド釣り協会で交換
+                </div>
+              </div>
+              <div class="fish-info-item">
+                <div class="fish-info-label">🪰 ハエの疑似餌（リュウノコ・フグ用）</div>
+                <div class="fish-info-value">
+                  素材: 緋櫻毬×1 + 馬尾×1<br />
+                  レシピ: モンド釣り協会で交換
+                </div>
+              </div>
+            </div>
+
+            <div class="note">
+              <div class="note-title">📦 餌の必要数目安</div>
+              • ワームの疑似餌: 約30～50個（雷鳴仙18匹用）<br />
+              • ハエの疑似餌: 約150～200個（リュウノコ40匹 + フグ80匹用）<br />
+              ※ 失敗や余裕を見て多めに用意しておくと安心
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow">↓</div>
+
+        <!-- 交換場所 -->
+        <div class="section">
+          <h2 class="section-title">交換場所</h2>
+          <div class="step final-step">
+            <div class="step-number">✨</div>
+            <div class="step-title">🏆 稲妻の釣り協会で交換</div>
+            <div class="step-description">
+              必要な魚を全て集めたら、稲妻の釣り協会で「漁獲」と「赤穂の枡」を交換しましょう！
+            </div>
+
+            <div class="fish-info" style="margin-top: 15px;">
+              <div class="fish-info-item">
+                <div class="fish-info-label">📍 場所</div>
+                <div class="fish-info-value">離島（稲妻城対岸）</div>
+              </div>
+              <div class="fish-info-item">
+                <div class="fish-info-label">👤 NPC</div>
+                <div class="fish-info-value">鯨井椛（くじらいもみじ）</div>
+              </div>
+            </div>
+
+            <div class="note">
+              <div class="note-title">🎉 完凸完了！</div>
+              1. 「観賞魚を交換」→「漁獲」を選択して武器本体を入手<br />
+              2. 「観賞魚を交換」→「赤穂の枡」を4個交換<br />
+              3. 武器画面から「漁獲」を選択し、精錬を4回行って完凸完了！
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div
+        class="note"
+        style="
+          margin-top: 30px;
+          background: rgba(79, 172, 254, 0.1);
+          border-left-color: #4facfe;
+        "
+      >
+        <div class="note-title" style="color: #4facfe">⚠️ 重要な注意点</div>
+        • 魚のリポップには実時間72時間（3日）かかるため、計画的に釣りを進めましょう<br />
+        • マルチプレイで他プレイヤーのワールドでも釣りが可能（時間短縮に有効）<br />
+        • 釣り糸安定装置（モンド釣り協会で交換）があると釣りが楽になります<br />
+        • 雷鳴仙は夜間限定なので、時間を確認してから出発しましょう<br />
+        • 雷電将軍を使っている場合は必ず完凸を目指してください！
+      </div>
+    </div>
+  </body>
+</html>
